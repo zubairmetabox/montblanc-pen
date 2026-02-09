@@ -69,6 +69,9 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    collections: Collection;
+    products: Product;
+    orders: Order;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +81,9 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    collections: CollectionsSelect<false> | CollectionsSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -145,6 +151,9 @@ export interface User {
  */
 export interface Media {
   id: string;
+  /**
+   * Describe the image for accessibility
+   */
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -157,6 +166,178 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    product?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Montblanc pen collections (e.g., Meisterstück, StarWalker)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections".
+ */
+export interface Collection {
+  id: string;
+  name: string;
+  /**
+   * URL-friendly identifier (e.g., meisterstuck)
+   */
+  slug: string;
+  description?: string | null;
+  /**
+   * Banner image for collection page
+   */
+  heroImage?: (string | null) | Media;
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Montblanc fountain pens
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  name: string;
+  /**
+   * URL-friendly identifier
+   */
+  slug: string;
+  penCollection: string | Collection;
+  /**
+   * Price in USD
+   */
+  price: number;
+  sku: string;
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Brief description for product cards (max 200 chars)
+   */
+  shortDescription?: string | null;
+  specifications?: {
+    nibSize?: ('EF' | 'F' | 'M' | 'B' | 'Stub') | null;
+    /**
+     * e.g., 14K Gold, 18K Gold
+     */
+    nibMaterial?: string | null;
+    /**
+     * e.g., Precious Resin, Lacquer
+     */
+    material?: string | null;
+    trimColor?: ('Gold' | 'Platinum' | 'Ruthenium' | 'Rose Gold') | null;
+    /**
+     * e.g., 147mm
+     */
+    length?: string | null;
+    /**
+     * e.g., 32g
+     */
+    weight?: string | null;
+    fillingSystem?: ('Piston' | 'Cartridge/Converter' | 'Capillary') | null;
+  };
+  heroImage: string | Media;
+  images?:
+    | {
+        image: string | Media;
+        alt: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Available quantity
+   */
+  stock: number;
+  /**
+   * Show on homepage featured section
+   */
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Customer inquiries and orders
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  /**
+   * Auto-generated order number
+   */
+  orderNumber: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  company?: string | null;
+  items: {
+    product: string | Product;
+    quantity: number;
+    /**
+     * Price when order was placed
+     */
+    priceAtTime: number;
+    id?: string | null;
+  }[];
+  /**
+   * Total order amount in USD
+   */
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled';
+  notes?: string | null;
+  /**
+   * Internal notes (not visible to customer)
+   */
+  adminNotes?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -189,6 +370,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'collections';
+        value: string | Collection;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -271,6 +464,124 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        product?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_select".
+ */
+export interface CollectionsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  heroImage?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  penCollection?: T;
+  price?: T;
+  sku?: T;
+  description?: T;
+  shortDescription?: T;
+  specifications?:
+    | T
+    | {
+        nibSize?: T;
+        nibMaterial?: T;
+        material?: T;
+        trimColor?: T;
+        length?: T;
+        weight?: T;
+        fillingSystem?: T;
+      };
+  heroImage?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        id?: T;
+      };
+  stock?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  customerName?: T;
+  email?: T;
+  phone?: T;
+  company?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        quantity?: T;
+        priceAtTime?: T;
+        id?: T;
+      };
+  totalAmount?: T;
+  status?: T;
+  notes?: T;
+  adminNotes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
