@@ -37,6 +37,12 @@ if (!globalWithPayload.payload) {
 }
 
 export const getPayloadClient = async () => {
+    // In production, we don't want to use the global singleton the same way 
+    // to avoid potential issues with serverless execution contexts
+    if (process.env.NODE_ENV === 'production') {
+        return await getPayload({ config })
+    }
+
     if (globalWithPayload.payload.client) {
         return globalWithPayload.payload.client
     }
@@ -49,6 +55,7 @@ export const getPayloadClient = async () => {
         globalWithPayload.payload.client = await globalWithPayload.payload.promise
     } catch (e) {
         globalWithPayload.payload.promise = null
+        console.error('Payload initialization failed:', e)
         throw e
     }
 

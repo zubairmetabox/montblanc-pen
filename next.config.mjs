@@ -12,6 +12,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'montblanc-pens.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: '*-zubair-1657s-projects.vercel.app',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
       },
     ],
