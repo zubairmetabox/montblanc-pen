@@ -1,8 +1,6 @@
 import 'dotenv/config'
 import { getPayload } from 'payload'
 import config from '../src/payload.config'
-import fs from 'node:fs'
-import path from 'node:path'
 
 const collectionData = [
     {
@@ -10,28 +8,28 @@ const collectionData = [
         slug: 'meisterstuck',
         description: 'The iconic Meisterstück collection represents the pinnacle of Montblanc craftsmanship since 1924. These writing instruments embody timeless elegance and exceptional quality.',
         featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?q=80&w=1200', // Verified pen
+        imageUrl: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?q=80&w=1200',
     },
     {
         name: 'StarWalker',
         slug: 'starwalker',
         description: 'A modern interpretation of Montblanc heritage, designed for the contemporary leader. Bold aesthetics meet precision engineering.',
         featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1511108620888-03823769c735?q=80&w=1200', // Verified pen
+        imageUrl: 'https://images.unsplash.com/photo-1560859251-d563a49c5e4a?q=80&w=1200',
     },
     {
         name: 'Heritage',
         slug: 'heritage',
         description: 'Drawing inspiration from Montblanc history, this collection pays homage to classic design with modern functionality.',
         featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1569012871812-f38ee6fc052d?q=80&w=1200', // Vintage feel
+        imageUrl: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?q=80&w=1200',
     },
     {
         name: 'Writers Edition',
         slug: 'writers-edition',
         description: 'Limited edition writing instruments celebrating literary legends. Each pen is a tribute to the world\'s greatest authors.',
         featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1531346680769-a1d79b57ca5e?q=80&w=1200', // Writing focus
+        imageUrl: 'https://images.unsplash.com/photo-1493217465235-252dd9c0d632?q=80&w=1200',
     },
 ]
 
@@ -45,7 +43,10 @@ const productData = [
         shortDescription: 'The flagship Montblanc fountain pen with handcrafted 18K gold nib and platinum-coated details.',
         stock: 5,
         featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?q=80&w=1000',
+        images: [
+            { url: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?q=80&w=1000', alt: 'Meisterstück 149 Platinum Front View' },
+            { url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1000', alt: 'Meisterstück 149 Platinum Detail' },
+        ],
         specifications: {
             nibSize: 'M',
             nibMaterial: '18K Gold',
@@ -62,10 +63,13 @@ const productData = [
         collectionSlug: 'meisterstuck',
         price: 935,
         sku: 'MB-146-GD',
-        shortDescription: 'A slightly more compact version of the iconic 149, perfect for everyday use.',
+        shortDescription: 'A slightly more compact version of the iconic 149, perfect for everyday use with its refined gold trim.',
         stock: 8,
         featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1511108620888-03823769c735?q=80&w=1000',
+        images: [
+            { url: 'https://images.unsplash.com/photo-1560859251-d563a49c5e4a?q=80&w=1000', alt: 'Meisterstück 146 LeGrand Front View' },
+            { url: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1000', alt: 'Meisterstück 146 LeGrand Close Up' },
+        ],
         specifications: {
             nibSize: 'F',
             nibMaterial: '14K Gold',
@@ -77,55 +81,18 @@ const productData = [
         },
     },
     {
-        name: 'StarWalker Midnight Black Fountain Pen',
-        slug: 'starwalker-midnight-black',
-        collectionSlug: 'starwalker',
-        price: 790,
-        sku: 'MB-SW-MN',
-        shortDescription: 'Contemporary design with floating Montblanc emblem in the transparent dome.',
-        stock: 10,
-        featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1585336139118-89ce735213f0?q=80&w=1000',
-        specifications: {
-            nibSize: 'M',
-            nibMaterial: '14K Gold',
-            material: 'Black Precious Resin',
-            trimColor: 'Platinum',
-            length: '141mm',
-            weight: '28g',
-            fillingSystem: 'Cartridge/Converter',
-        },
-    },
-    {
-        name: 'Heritage Rouge et Noir Fountain Pen',
-        slug: 'heritage-rouge-noir',
-        collectionSlug: 'heritage',
-        price: 1020,
-        sku: 'MB-HR-RN',
-        shortDescription: 'Inspired by the original 1906 design, featuring the coral-colored snake clip.',
-        stock: 3,
-        featured: true,
-        imageUrl: 'https://images.unsplash.com/photo-1569012871812-f38ee6fc052d?q=80&w=1000',
-        specifications: {
-            nibSize: 'M',
-            nibMaterial: '14K Gold',
-            material: 'Black Precious Resin',
-            trimColor: 'Ruthenium',
-            length: '136mm',
-            weight: '27g',
-            fillingSystem: 'Piston',
-        },
-    },
-    {
         name: 'Meisterstück Classique Fountain Pen',
         slug: 'meisterstuck-classique',
         collectionSlug: 'meisterstuck',
         price: 615,
         sku: 'MB-MC-CL',
-        shortDescription: 'The compact Classique model, ideal for those who prefer a lighter writing instrument.',
+        shortDescription: 'The compact Classique model, ideal for on-the-go writing with impeccable Montblanc style.',
         stock: 12,
         featured: false,
-        imageUrl: 'https://images.unsplash.com/photo-1531346680769-a1d79b57ca5e?q=80&w=1000',
+        images: [
+            { url: 'https://images.unsplash.com/photo-1493217465235-252dd9c0d632?q=80&w=1000', alt: 'Meisterstück Classique Front View' },
+            { url: 'https://images.unsplash.com/photo-1517842264405-72bb906a1936?q=80&w=1000', alt: 'Meisterstück Classique On Desk' },
+        ],
         specifications: {
             nibSize: 'F',
             nibMaterial: '14K Gold',
@@ -133,6 +100,29 @@ const productData = [
             trimColor: 'Gold',
             length: '145mm',
             weight: '20g',
+            fillingSystem: 'Cartridge/Converter',
+        },
+    },
+    {
+        name: 'StarWalker Midnight Black Fountain Pen',
+        slug: 'starwalker-midnight-black',
+        collectionSlug: 'starwalker',
+        price: 790,
+        sku: 'MB-SW-MN',
+        shortDescription: 'Contemporary design with floating Montblanc emblem in the transparent dome, finished in deep black.',
+        stock: 10,
+        featured: true,
+        images: [
+            { url: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1000', alt: 'StarWalker Midnight Black Front View' },
+            { url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1000', alt: 'StarWalker Midnight Black Side View' },
+        ],
+        specifications: {
+            nibSize: 'M',
+            nibMaterial: '14K Gold',
+            material: 'Black Precious Resin',
+            trimColor: 'Platinum',
+            length: '141mm',
+            weight: '28g',
             fillingSystem: 'Cartridge/Converter',
         },
     },
@@ -145,7 +135,10 @@ const productData = [
         shortDescription: 'Blue lacquer finish with ruthenium-coated fittings for a celestial aesthetic.',
         stock: 6,
         featured: false,
-        imageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1000',
+        images: [
+            { url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1000', alt: 'StarWalker SpaceBlue Front View' },
+            { url: 'https://images.unsplash.com/photo-1501618669935-18b6ecb13d6d?q=80&w=1000', alt: 'StarWalker SpaceBlue With Inkwell' },
+        ],
         specifications: {
             nibSize: 'M',
             nibMaterial: '14K Gold',
@@ -154,6 +147,75 @@ const productData = [
             length: '141mm',
             weight: '28g',
             fillingSystem: 'Cartridge/Converter',
+        },
+    },
+    {
+        name: 'Heritage Rouge et Noir Fountain Pen',
+        slug: 'heritage-rouge-noir',
+        collectionSlug: 'heritage',
+        price: 1020,
+        sku: 'MB-HR-RN',
+        shortDescription: 'Inspired by the original 1906 design, featuring the iconic coral-colored snake clip.',
+        stock: 3,
+        featured: true,
+        images: [
+            { url: 'https://images.unsplash.com/photo-1473186578172-c141e6798cf4?q=80&w=1000', alt: 'Heritage Rouge et Noir Front View' },
+            { url: 'https://images.unsplash.com/photo-1518826778770-a729fb53327c?q=80&w=1000', alt: 'Heritage Rouge et Noir Detail' },
+        ],
+        specifications: {
+            nibSize: 'M',
+            nibMaterial: '14K Gold',
+            material: 'Black Precious Resin',
+            trimColor: 'Ruthenium',
+            length: '136mm',
+            weight: '27g',
+            fillingSystem: 'Piston',
+        },
+    },
+    {
+        name: 'Heritage Egyptomania Fountain Pen',
+        slug: 'heritage-egyptomania',
+        collectionSlug: 'heritage',
+        price: 1280,
+        sku: 'MB-HR-EG',
+        shortDescription: 'A tribute to ancient Egypt with Art Deco motifs, lacquered in shimmering gold and black.',
+        stock: 2,
+        featured: false,
+        images: [
+            { url: 'https://images.unsplash.com/photo-1517842264405-72bb906a1936?q=80&w=1000', alt: 'Heritage Egyptomania Front View' },
+            { url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1000', alt: 'Heritage Egyptomania Side View' },
+        ],
+        specifications: {
+            nibSize: 'M',
+            nibMaterial: '18K Gold',
+            material: 'Lacquer',
+            trimColor: 'Gold',
+            length: '139mm',
+            weight: '29g',
+            fillingSystem: 'Piston',
+        },
+    },
+    {
+        name: 'Writers Edition Homage to Homer',
+        slug: 'writers-edition-homer',
+        collectionSlug: 'writers-edition',
+        price: 1460,
+        sku: 'MB-WE-HM',
+        shortDescription: 'A limited edition masterpiece celebrating the author of the Odyssey, with hand-engraved cap and barrel.',
+        stock: 1,
+        featured: true,
+        images: [
+            { url: 'https://images.unsplash.com/photo-1501618669935-18b6ecb13d6d?q=80&w=1000', alt: 'Writers Edition Homer Front View' },
+            { url: 'https://images.unsplash.com/photo-1518826778770-a729fb53327c?q=80&w=1000', alt: 'Writers Edition Homer Nib Detail' },
+        ],
+        specifications: {
+            nibSize: 'B',
+            nibMaterial: '18K Gold',
+            material: 'Precious Resin with Engraving',
+            trimColor: 'Gold',
+            length: '148mm',
+            weight: '34g',
+            fillingSystem: 'Piston',
         },
     },
 ]
@@ -168,7 +230,7 @@ async function downloadImage(url: string): Promise<Buffer> {
 const GIF_FALLBACK = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64')
 
 async function seed() {
-    console.log('🌱 Starting seed with real images...')
+    console.log('🌱 Starting Supabase seed with fresh images...')
 
     const payload = await getPayload({ config })
 
@@ -180,7 +242,7 @@ async function seed() {
 
     // Helper to upload image from URL
     const uploadImage = async (url: string, prefix: string, alt: string) => {
-        console.log(`  Attempting download for ${prefix}...`)
+        console.log(`  Downloading ${prefix}...`)
         try {
             const data = await downloadImage(url)
             const filename = `${prefix}-${Date.now()}.jpg`
@@ -214,7 +276,7 @@ async function seed() {
 
     // Create collections
     console.log('Creating collections...')
-    const createdCollections: Record<string, string> = {}
+    const createdCollections: Record<string, number> = {}
 
     for (const collection of collectionData) {
         const { imageUrl, ...rest } = collection
@@ -227,18 +289,31 @@ async function seed() {
                 heroImage: heroImageId,
             },
         })
-        createdCollections[collection.slug] = created.id
+        createdCollections[collection.slug] = created.id as number
         console.log(`  ✓ Created collection: ${collection.name}`)
     }
 
     // Create products
-    console.log('Creating products...')
+    console.log('Creating products (8 products with gallery images)...')
 
     for (const product of productData) {
         const collectionId = createdCollections[product.collectionSlug]
-        const { collectionSlug, imageUrl, ...productFields } = product
+        const { collectionSlug, images: imageList, ...productFields } = product
 
-        const imageId = await uploadImage(imageUrl, product.slug, product.name)
+        // Upload hero image (first image)
+        const heroImageId = await uploadImage(imageList[0].url, `${product.slug}-hero`, imageList[0].alt)
+
+        // Upload gallery images (all images)
+        const galleryImages = []
+        for (let i = 0; i < imageList.length; i++) {
+            const imgId = i === 0
+                ? heroImageId
+                : await uploadImage(imageList[i].url, `${product.slug}-gallery-${i}`, imageList[i].alt)
+            galleryImages.push({
+                image: imgId,
+                alt: imageList[i].alt,
+            })
+        }
 
         await payload.create({
             collection: 'products',
@@ -251,13 +326,8 @@ async function seed() {
                     fillingSystem: productFields.specifications.fillingSystem as any,
                 },
                 penCollection: collectionId,
-                heroImage: imageId,
-                images: [
-                    {
-                        image: imageId,
-                        alt: `${product.name} Gallery Image`,
-                    },
-                ],
+                heroImage: heroImageId,
+                images: galleryImages,
                 description: {
                     root: {
                         type: 'root',
@@ -279,7 +349,7 @@ async function seed() {
         console.log(`  ✓ Created product: ${product.name}`)
     }
 
-    console.log('✅ Seed completed with real images!')
+    console.log('✅ Supabase seed completed with 4 collections and 8 products!')
     process.exit(0)
 }
 

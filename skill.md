@@ -22,7 +22,11 @@ This document captures the specific development style, technical preferences, an
 - **Package Manager**: NPM is the primary tool.
 - **Database**: Shift to MongoDB Atlas (Cloud) early to avoid local setup friction.
 - **Environment**: Keep `.env` simple and well-documented.
-- **Cleanup**: Proactively fix TypeScript errors and console warnings (e.g., Mongoose reserved key warnings) as soon as they appear.
+- **Cleanup**: Proactively fix TypeScript errors and console warnings.
+- **Troubleshooting Protocol**:
+    - For database hangs/SSL errors, always check **IP whitelisting** first via `curl.exe https://api.ipify.org`.
+    - For duplicate React keys in Payload galleries, always filter by ID: `self.findIndex((t) => t.id === img.id)`.
+    - For missing images, check `next.config.mjs` for **remotePatterns** configuration.
 
 ## 💡 Personal Development Philosophy
 "I want to jump straight to the final working solution instead of juggling with issues."

@@ -53,12 +53,43 @@ export default {
 npm run generate:types
 ```
 
-### 4. MongoDB Local vs. Cloud
-**Issue**: `connect ECONNREFUSED 127.0.0.1:27017`.
-**Cause**: Development server attempting to connect to a local MongoDB instance that wasn't running.
-**Final Solution**: Switched to MongoDB Atlas.
-- **Requirement**: Add `0.0.0.0/0` to Network Access in Atlas.
-- **Env**: Use the `mongodb+srv://` connection string in `.env`.
+### 5. MongoDB Atlas SSL / IP Whitelist
+**Issue**: `MongoServerSelectionError: tlsv1 alert internal error` or `TopologyDescription { type: 'ReplicaSetNoPrimary' }`.
+**Cause**: MongoDB Atlas rejects the TLS handshake if the client IP is not whitelisted, often throwing obscure SSL errors in Node.js instead of a clear "IP not allowed" message.
+**Resolution**: 
+- Retrieve current IP via `curl https://api.ipify.org`.
+- Add the IP (or `0.0.0.0/0` for dev-only flexibility) to the **Network Access** tab in MongoDB Atlas.
+
+### 6. Duplicate React Keys in Product Gallery
+**Issue**: `Encountered two children with the same key` when rendering thumbnails.
+**Cause**: The gallery logic was adding the `heroImage` and then the `product.images` array separately, but often the `heroImage` was already part of the `images` set, leading to duplicate Mongo IDs as React keys.
+**Resolution**:
+```tsx
+const rawImages: Media[] = []
+if (heroImage) rawImages.push(heroImage)
+galleryImages.forEach((item) => {
+    const img = item.image as Media | undefined
+    if (img) rawImages.push(img)
+})
+
+// Filter for unique IDs
+const allImages = rawImages.filter(
+    (img, index, self) => index === self.findIndex((t) => t.id === img.id)
+)
+```
+
+### 7. Unsplash Image Rendering
+**Issue**: `next/image` error: "Hostname 'images.unsplash.com' is not configured under images in your `next.config.mjs`".
+**Resolution**:
+Add the domain to `remotePatterns`:
+```javascript
+images: {
+  remotePatterns: [
+    { hostname: 'localhost' },
+    { hostname: 'images.unsplash.com', protocol: 'https' }
+  ]
+}
+```
 
 ---
 

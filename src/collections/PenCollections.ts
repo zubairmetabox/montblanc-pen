@@ -2,7 +2,6 @@ import type { CollectionConfig } from 'payload'
 
 export const PenCollections: CollectionConfig = {
     slug: 'collections',
-    dbName: 'pen_collections', // Avoid Mongoose reserved 'collection' keyword
     admin: {
         useAsTitle: 'name',
         description: 'Montblanc pen collections (e.g., Meisterstück, StarWalker)',
