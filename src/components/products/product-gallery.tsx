@@ -13,13 +13,18 @@ export function ProductGallery({ product }: ProductGalleryProps) {
     const heroImage = product.heroImage as Media | undefined
     const galleryImages = product.images || []
 
-    // Combine hero + gallery images
-    const allImages: Media[] = []
-    if (heroImage) allImages.push(heroImage)
+    // Combine hero + gallery images and filter for uniqueness
+    const rawImages: Media[] = []
+    if (heroImage) rawImages.push(heroImage)
     galleryImages.forEach((item) => {
         const img = item.image as Media | undefined
-        if (img) allImages.push(img)
+        if (img) rawImages.push(img)
     })
+
+    // Remove duplicates by ID
+    const allImages = rawImages.filter(
+        (img, index, self) => index === self.findIndex((t) => t.id === img.id)
+    )
 
     const [selectedIndex, setSelectedIndex] = useState(0)
     const currentImage = allImages[selectedIndex]

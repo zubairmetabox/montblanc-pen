@@ -9,10 +9,10 @@ import { cn } from '@/lib/utils'
 import { useCart } from '@/context/cart-context'
 
 const navigation = [
-    { name: 'Collections', href: '/collections' },
-    { name: 'Meisterstück', href: '/collections/meisterstuck' },
-    { name: 'StarWalker', href: '/collections/starwalker' },
-    { name: 'Heritage', href: '/collections/heritage' },
+    { name: 'Home', href: '/' },
+    { name: 'Pen Collections', href: '/collections' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
 ]
 
 export function Navbar() {
