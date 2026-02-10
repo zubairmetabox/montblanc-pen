@@ -1,158 +1,121 @@
-# Technical Stack & Implementation Guide
+# Skill: Building a Modern E-commerce with Next.js 15 & Payload CMS 3.x
 
-This document outlines the technical stack chosen for the Montblanc E-commerce project and documents the specific issues encountered during setup, along with their final working solutions.
+This document serves as a **Skill** for AI agents and developers to replicate the construction of the Montblanc Pens e-commerce platform. It documents the **exact working stack**, critical configurations, and specific solutions to complex integration issues encountered during development.
 
-## Core Stack
-- **Framework**: Next.js 15 (App Router)
-- **CMS**: Payload CMS 3.x (Next.js integrated)
-- **Database**: MongoDB Atlas (Cloud)
-- **Styling**: Tailwind CSS v4 (Migrated for latest performance and feature set)
-- **UI Components**: Shadcn UI (inspired) + Framer Motion
-- **Validation**: Zod + React Hook Form
+## 🏗 Core Technical Stack (Final Verified State)
+
+- **Framework**: Next.js 15.4.11 (App Router)
+- **CMS**: Payload CMS 3.75.0 (Locked Version)
+- **Database**: PostgreSQL (Supabase) via `@payloadcms/db-postgres`
+- **Styling**: Tailwind CSS v4 (using `@tailwindcss/postcss`)
+- **Deployment**: Vercel (Serverless)
+- **Package Manager**: npm
 
 ---
 
-## 🛠 Resolved Issues & Lessons Learned
+## 🚀 Implementation Strategy (Step-by-Step)
 
-### 1. Missing PostCSS Dependencies
-**Issue**: Running the dev server resulted in a `next/font` error: `Error: Cannot find module 'autoprefixer'`.
-**Cause**: Next.js 15/Tailwind 4 sometimes expects `autoprefixer` to be explicitly installed in the dev environment depending on the initialization method.
-**Resolution**: 
-```bash
-npm install -D autoprefixer
-```
-
-### 2. Tailwind CSS v4 Migration
-**Issue**: Initial attempt to use Tailwind CSS v4 caused `unknown utility class` errors and build syntax errors with `@layer`.
-**Final Solution**: 
-- **PostCSS**: Switched to `@tailwindcss/postcss` for proper integration with Next.js 15.
-- **Syntax**: Replaced `@tailwind base/components/utilities` with `@import "tailwindcss";`.
-- **Theme Mapping**: Moved all configuration from `tailwind.config.ts` (now removed) to the `@theme` block in `globals.css`.
-- **Key Lesson**: In v4, custom utility classes like `text-balance` must use the `@utility` directive instead of `@layer utilities`. Avoid mixing old `@tailwind` directives with new v4 `@import` syntax.
-
-**PostCSS Config (v4)**:
-```javascript
-export default {
-  plugins: {
-    '@tailwindcss/postcss': {},
-    autoprefixer: {},
-  },
+### 1. Project Initialization & Dependencies
+**Rule**: Always lock Payload versions to avoid mismatch errors.
+```json
+// package.json dependencies (Critical for Stability)
+{
+  "next": "15.4.11",
+  "payload": "3.75.0",
+  "@payloadcms/next": "3.75.0",
+  "@payloadcms/db-postgres": "3.75.0",
+  "@payloadcms/richtext-lexical": "3.75.0",
+  "@payloadcms/ui": "3.75.0"
 }
 ```
+**Command**: `npm install` (Ensure clean node_modules if version mismatch occurs)
 
-### 3. Mongoose Reserved Keyword Conflict
-**Issue**: `(node:xxxx) [MONGOOSE] Warning: 'collection' is a reserved schema pathname`.
-**Cause**: 
-- Using `slug: 'collections'` for the Pen Collections.
-- Using a relationship field named `collection` inside the `Products` collection.
-**Resolution**:
-- Changed the relationship field in `src/collections/Products.ts` from `collection` to `penCollection`.
-- Added `dbName: 'pen_collections'` to the PenCollections config to ensure the MongoDB collection name doesn't conflict with internal Mongoose properties.
-- **Critical Step**: After renaming fields in Payload, you **must** run:
-```bash
-npm run generate:types
-```
+### 2. Layout Architecture (Crucial for Admin Panel)
+**Pattern**: Use **Route Groups** to separate Frontend and Admin layouts to avoid hydration errors.
 
-### 5. MongoDB Atlas SSL / IP Whitelist
-**Issue**: `MongoServerSelectionError: tlsv1 alert internal error` or `TopologyDescription { type: 'ReplicaSetNoPrimary' }`.
-**Cause**: MongoDB Atlas rejects the TLS handshake if the client IP is not whitelisted, often throwing obscure SSL errors in Node.js instead of a clear "IP not allowed" message.
-**Resolution**: 
-- Retrieve current IP via `curl https://api.ipify.org`.
-- Add the IP (or `0.0.0.0/0` for dev-only flexibility) to the **Network Access** tab in MongoDB Atlas.
+- **`src/app/layout.tsx`** (Root):
+  - Contains `<html>` and `<body>` tags.
+  - Exports generic metadata.
+  - **NO** global providers or complex UI here.
 
-### 6. Duplicate React Keys in Product Gallery
-**Issue**: `Encountered two children with the same key` when rendering thumbnails.
-**Cause**: The gallery logic was adding the `heroImage` and then the `product.images` array separately, but often the `heroImage` was already part of the `images` set, leading to duplicate Mongo IDs as React keys.
-**Resolution**:
-```tsx
-const rawImages: Media[] = []
-if (heroImage) rawImages.push(heroImage)
-galleryImages.forEach((item) => {
-    const img = item.image as Media | undefined
-    if (img) rawImages.push(img)
+- **`src/app/(frontend)/layout.tsx`**:
+  - Encapsulates the public site.
+  - Imports global CSS/fonts.
+  - **MUST NOT** contain another `<html>` or `<body>` tag. Use a wrapper `div`.
+  - Provides `CartProvider`, `ThemeProvider`, `Navbar`, `Footer`.
+
+- **`src/app/(payload)/layout.tsx`**:
+  - Pure wrapper for Payload.
+  - `import '@payloadcms/next/css'`
+  - `export default ({ children }) => <RootLayout>{children}</RootLayout>` (Imports Payload's own RootLayout)
+
+### 3. Database Configuration (PostgreSQL)
+**Config**: `src/payload.config.ts`
+```typescript
+import { postgresAdapter } from '@payloadcms/db-postgres'
+
+export default buildConfig({
+  // ...
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URL,
+    },
+  }),
 })
-
-// Filter for unique IDs
-const allImages = rawImages.filter(
-    (img, index, self) => index === self.findIndex((t) => t.id === img.id)
-)
 ```
+**Schema**: Automatically generated by Payload on first admin access.
 
-### 7. Unsplash Image Rendering
-**Issue**: `next/image` error: "Hostname 'images.unsplash.com' is not configured under images in your `next.config.mjs`".
-**Resolution**:
-Add the domain to `remotePatterns`:
-```javascript
-images: {
-  remotePatterns: [
-    { hostname: 'localhost' },
-    { hostname: 'images.unsplash.com', protocol: 'https' }
-  ]
-}
-```
-
-### 8. Payload "Pulling schema" Performance Delay
-**Issue**: Development server was extremely slow, with logs repeatedly showing "Pulling schema from database..." on every request.
-**Cause**: Payload was re-initializing the database connection and pulling the schema from PostgreSQL on every HMR (Hot Module Replacement) and even individual server requests in development.
-**Resolution**:
-- **Global Singleton**: Implemented a global singleton pattern for the Payload instance in `src/lib/queries.ts`.
-- **Request Caching**: Wrapped all data-fetching functions in `React.cache`.
-- **Safety Fallback**: Added a fallback for `React.cache` to ensure compatibility across all environments.
-
-```tsx
-const globalWithPayload = global as typeof globalThis & {
-    payload: { client: any | null, promise: Promise<any> | null }
-}
-if (!globalWithPayload.payload) globalWithPayload.payload = { client: null, promise: null }
-
-export const getPayloadClient = async () => {
-    if (globalWithPayload.payload.client) return globalWithPayload.payload.client
-    if (!globalWithPayload.payload.promise) globalWithPayload.payload.promise = getPayload({ config })
-    // ... await and cache client
-}
-```
-
-### 9. Checkout UX & Validation Errors
-**Issue**: Checkout produced a 400 error and flashed an "empty cart" message before the success redirect.
-**Cause**: 
-- **Type Mismatch**: `product.id` can be a number or string depending on the database adapter, but the API expected a specific format.
-- **Race Condition**: `clearCart()` was called before the redirect, triggering the empty cart state in the UI wrapper.
-**Resolution**:
-- **Type Casting**: Added `String(product.id)` or numeric casting in the `createOrder` logic.
-- **Processing State**: Added `isSubmitting` and `isSuccess` states to show a "Processing..." overlay instead of the empty cart.
-- **Atomic Success**: `clearCart()` is now called only *after* a successful server response and immediately before `router.push()`.
+### 4. Admin Panel & Vercel Deployment
+**Critical Fix**: Do **NOT** use `@payloadcms/storage-vercel-blob` if it introduces version conflicts (e.g., v3.76.0 vs v3.75.0).
+- **Alternative**: Use standard Vercel Blob SDK directly or wait for version alignment.
+- **Import Map**: If `importMap.js` contains crashing client imports, manually clean them or regenerate with `npm run generate:importmap` ensuring no incompatible plugins are present.
 
 ---
 
-## 🚀 The "Perfect" Starting Point (Quick Start)
+## ⚠️ What Went Wrong & How to Avoid It
 
-When starting a similar project, follow this order to avoid the issues above:
+### 🔴 Issue 1: The "Nested HTML" Crash
+**Symptoms**: Admin panel fails to load locally; console shows hydration mismatches.
+**Cause**: Having a `layout.tsx` that renders `<html><body>...</body></html>` and then nesting Payload's Admin layout (which *also* has its own HTML structure) inside it.
+**Solution**: 
+1. Move the public site layout to `(frontend)/layout.tsx`.
+2. Ensure `(frontend)/layout.tsx` returns a `<div>` wrapper, NOT `<body>`.
+3. Keep the root `app/layout.tsx` minimal.
 
-### 1. Dependencies
-Always use the v4 PostCSS plugin for clean integration:
-```bash
-npm install tailwindcss@latest @tailwindcss/postcss autoprefixer
+### 🔴 Issue 2: Payload Version Mismatch
+**Symptoms**: Runtime error: `Mismatching "payload" dependency versions found`.
+**Cause**: Installing a plugin (like `@payloadcms/plugin-cloud-storage`) that pulled in a newer version (3.76.0) while core Payload was at 3.75.0.
+**Solution**:
+1. **Lock versions**: Remove carrots (`^`) from `package.json` for all `@payloadcms/*` packages.
+2. **Clean install**: `rm -rf node_modules package-lock.json && npm install`.
+
+### 🔴 Issue 3: Admin Panel Client-Side Exception
+**Symptoms**: "Application error: a client-side exception has occurred" on `/admin`.
+**Cause**: The `importMap.js` file (generated by Payload) included a reference to `VercelBlobClientUploadHandler` from the incompatible storage plugin, even after the plugin was disabled.
+**Solution**:
+1. Remove the plugin from `payload.config.ts`.
+2. Manually edit `src/app/(payload)/admin/importMap.js` to remove the offending import.
+3. Restart dev server.
+
+### 🔴 Issue 4: Database Connection Timeout
+**Symptoms**: `Error: cannot connect to Postgres` during static generation.
+**Cause**: Next.js tries to build static pages that require database access, but the serverless build environment (or local build) times out.
+**Solution**: Force dynamic rendering for data-dependent pages.
+```typescript
+// src/app/(frontend)/page.tsx
+export const dynamic = 'force-dynamic'
 ```
 
-### 2. File Naming Convention
-**Never** name a field `collection` in Payload if using MongoDB. Use `category`, `group`, or `penCollection`.
+---
 
-### 3. Tailwind v4 Theme & Utilities
-All custom design tokens are defined in `@theme`. However, standard utilities like `container` are no longer built-in by default in the same way.
-- **Solution**: Manually define a `@utility container` in `globals.css` with responsive padding (1rem to 4rem) and centering.
-- **Glassmorphism**: Added `@utility glass` for the premium blurred-background effect.
+## 🎨 Design System (Tailwind v4)
+- **Glassmorphism**: Use `backdrop-blur-md bg-white/80` for navbars and overlays.
+- **Typography**: Inter (Sans) + Playfair Display (Serif) via `next/font/google`.
+- **Animations**: `framer-motion` for page transitions and scroll reveals.
+- **Mobile Menu**: Full-screen overlay with `AnimatePresence`.
 
-### 3. Environment Setup
-Always start with an Atlas URI to avoid local database management overhead during early development.
-
-```env
-DATABASE_URL=mongodb+srv://...
-PAYLOAD_SECRET=...
-NEXT_PUBLIC_SERVER_URL=http://localhost:3000
-```
-
-### 4. Initial Commands
-```bash
-npm run generate:types   # Sync Payload config with TypeScript
-npm run dev              # Start
-```
+## ✅ Final Verification Checklist
+1. `npm run dev` starts without warnings.
+2. `/admin` loads (200 OK) and allows login.
+3. `/collections` fetches data from Supabase.
+4. Deployment to Vercel builds successfully.
