@@ -4,12 +4,16 @@ import { getCollectionBySlug, getProductsByCollection, getCollections } from '@/
 import { ProductGrid } from '@/components/products'
 import type { Media, Collection } from '@/payload-types'
 
+export const dynamic = 'force-dynamic'
+
+/*
 export async function generateStaticParams() {
     const collections = await getCollections()
     return collections.map((collection: Collection) => ({
         slug: collection.slug,
     }))
 }
+*/
 
 interface CollectionPageProps {
     params: Promise<{ slug: string }>

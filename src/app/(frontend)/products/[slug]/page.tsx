@@ -4,12 +4,16 @@ import { getProductBySlug, getRelatedProducts, getProducts } from '@/lib/queries
 import { ProductGallery, ProductInfo, ProductGrid } from '@/components/products'
 import type { Collection, Product } from '@/payload-types'
 
+export const dynamic = 'force-dynamic'
+
+/*
 export async function generateStaticParams() {
     const { products } = await getProducts(undefined, { limit: 100 })
     return products.map((product: Product) => ({
         slug: product.slug,
     }))
 }
+*/
 
 interface ProductPageProps {
     params: Promise<{ slug: string }>
