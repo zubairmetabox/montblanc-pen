@@ -91,6 +91,37 @@ images: {
 }
 ```
 
+### 8. Payload "Pulling schema" Performance Delay
+**Issue**: Development server was extremely slow, with logs repeatedly showing "Pulling schema from database..." on every request.
+**Cause**: Payload was re-initializing the database connection and pulling the schema from PostgreSQL on every HMR (Hot Module Replacement) and even individual server requests in development.
+**Resolution**:
+- **Global Singleton**: Implemented a global singleton pattern for the Payload instance in `src/lib/queries.ts`.
+- **Request Caching**: Wrapped all data-fetching functions in `React.cache`.
+- **Safety Fallback**: Added a fallback for `React.cache` to ensure compatibility across all environments.
+
+```tsx
+const globalWithPayload = global as typeof globalThis & {
+    payload: { client: any | null, promise: Promise<any> | null }
+}
+if (!globalWithPayload.payload) globalWithPayload.payload = { client: null, promise: null }
+
+export const getPayloadClient = async () => {
+    if (globalWithPayload.payload.client) return globalWithPayload.payload.client
+    if (!globalWithPayload.payload.promise) globalWithPayload.payload.promise = getPayload({ config })
+    // ... await and cache client
+}
+```
+
+### 9. Checkout UX & Validation Errors
+**Issue**: Checkout produced a 400 error and flashed an "empty cart" message before the success redirect.
+**Cause**: 
+- **Type Mismatch**: `product.id` can be a number or string depending on the database adapter, but the API expected a specific format.
+- **Race Condition**: `clearCart()` was called before the redirect, triggering the empty cart state in the UI wrapper.
+**Resolution**:
+- **Type Casting**: Added `String(product.id)` or numeric casting in the `createOrder` logic.
+- **Processing State**: Added `isSubmitting` and `isSuccess` states to show a "Processing..." overlay instead of the empty cart.
+- **Atomic Success**: `clearCart()` is now called only *after* a successful server response and immediately before `router.push()`.
+
 ---
 
 ## 🚀 The "Perfect" Starting Point (Quick Start)

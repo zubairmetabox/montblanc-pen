@@ -58,7 +58,9 @@ For detailed technical hurdles and architectural choices, see: [Tech-stack-choic
 - [x] **UI System**: Custom button variants, cards, inputs, and layout components.
 - [x] **Pages**: Homepage, Collections Listing, Product Details, About, Contact, Cart, and Checkout.
 - [x] **API**: Order submission route (`/api/orders`).
-- [x] **Connectivity**: MongoDB Atlas integration with IP whitelisting.
+- [x] **Connectivity**: Supabase (Postgres) integration with pooling.
+- [x] **Performance**: Implemented Payload Client Singleton & React Caching to eliminate schema-pull delays.
+- [x] **UX**: Added processing states to checkout, eliminating flickering and improving feedback.
 - [x] **Migrations**: Successful upgrade to **Tailwind CSS v4** with full theme mapping.
 - [x] **Media**: High-fidelity Unsplash integration with automated seed script.
 

@@ -1,7 +1,10 @@
 import { getPayload } from 'payload'
-import { cache } from 'react'
+import * as React from 'react'
 import config from '@/payload.config'
 import type { Product, Collection, Order } from '@/payload-types'
+
+// Robust cache fallback
+const cache = (React as any).cache || ((fn: any) => fn)
 
 // Types for query options
 interface QueryOptions {
@@ -20,11 +23,37 @@ interface ProductFilters {
 }
 
 /**
- * Get Payload instance (cached for the request)
+ * Global cache for the Payload instance to prevent re-initialization in development
  */
-export const getPayloadClient = cache(async () => {
-    return await getPayload({ config })
-})
+const globalWithPayload = global as typeof globalThis & {
+    payload: {
+        client: any | null
+        promise: Promise<any> | null
+    }
+}
+
+if (!globalWithPayload.payload) {
+    globalWithPayload.payload = { client: null, promise: null }
+}
+
+export const getPayloadClient = async () => {
+    if (globalWithPayload.payload.client) {
+        return globalWithPayload.payload.client
+    }
+
+    if (!globalWithPayload.payload.promise) {
+        globalWithPayload.payload.promise = getPayload({ config })
+    }
+
+    try {
+        globalWithPayload.payload.client = await globalWithPayload.payload.promise
+    } catch (e) {
+        globalWithPayload.payload.promise = null
+        throw e
+    }
+
+    return globalWithPayload.payload.client
+}
 
 /**
  * Fetch all collections
@@ -62,7 +91,7 @@ export const getCollectionBySlug = cache(async (slug: string): Promise<Collectio
 /**
  * Fetch featured collections
  */
-export async function getFeaturedCollections(): Promise<Collection[]> {
+export const getFeaturedCollections = cache(async (): Promise<Collection[]> => {
     const payload = await getPayloadClient()
 
     const result = await payload.find({
@@ -74,15 +103,15 @@ export async function getFeaturedCollections(): Promise<Collection[]> {
     })
 
     return result.docs as Collection[]
-}
+})
 
 /**
  * Fetch products with optional filters
  */
-export async function getProducts(
+export const getProducts = cache(async (
     filters?: ProductFilters,
     options?: QueryOptions
-): Promise<{ products: Product[]; totalPages: number; totalDocs: number }> {
+): Promise<{ products: Product[]; totalPages: number; totalDocs: number }> => {
     const payload = await getPayloadClient()
 
     // Build where clause
@@ -122,7 +151,7 @@ export async function getProducts(
         totalPages: result.totalPages,
         totalDocs: result.totalDocs,
     }
-}
+})
 
 /**
  * Fetch a single product by slug
@@ -145,7 +174,7 @@ export const getProductBySlug = cache(async (slug: string): Promise<Product | nu
 /**
  * Fetch featured products
  */
-export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
+export const getFeaturedProducts = cache(async (limit = 4): Promise<Product[]> => {
     const payload = await getPayloadClient()
 
     const result = await payload.find({
@@ -158,15 +187,15 @@ export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
     })
 
     return result.docs as Product[]
-}
+})
 
 /**
  * Fetch products in a collection
  */
-export async function getProductsByCollection(
+export const getProductsByCollection = cache(async (
     collectionSlug: string,
     options?: QueryOptions
-): Promise<{ products: Product[]; totalPages: number }> {
+): Promise<{ products: Product[]; totalPages: number }> => {
     const payload = await getPayloadClient()
 
     // First get the collection ID
@@ -190,12 +219,12 @@ export async function getProductsByCollection(
         products: result.docs as Product[],
         totalPages: result.totalPages,
     }
-}
+})
 
 /**
  * Create a new order
  */
-export async function createOrder(orderData: {
+export const createOrder = async (orderData: {
     customerName: string
     email: string
     phone: string
@@ -203,7 +232,7 @@ export async function createOrder(orderData: {
     items: { product: string; quantity: number; priceAtTime: number }[]
     totalAmount: number
     notes?: string
-}): Promise<Order> {
+}): Promise<Order> => {
     const payload = await getPayloadClient()
 
     // Generate order number
@@ -211,30 +240,34 @@ export async function createOrder(orderData: {
     const random = Math.random().toString(36).substring(2, 6).toUpperCase()
     const orderNumber = `MB-${timestamp}-${random}`
 
-    const order = await payload.create({
-        collection: 'orders',
-        data: {
-            ...orderData,
-            items: orderData.items.map((item) => ({
-                ...item,
-                product: item.product as any,
-            })),
-            orderNumber,
-            status: 'pending',
-        },
-    })
-
-    return order as Order
+    try {
+        const order = await payload.create({
+            collection: 'orders',
+            data: {
+                ...orderData,
+                items: orderData.items.map((item) => ({
+                    ...item,
+                    // Ensure product ID is correctly formatted (some DBs expect numbers)
+                    product: isNaN(Number(item.product)) ? item.product : Number(item.product),
+                })),
+                orderNumber,
+                status: 'pending',
+            },
+        })
+        return order as Order
+    } catch (error: any) {
+        throw error
+    }
 }
 
 /**
  * Get related products (same collection, excluding current)
  */
-export async function getRelatedProducts(
+export const getRelatedProducts = cache(async (
     currentProductId: string,
     collectionId: string,
     limit = 4
-): Promise<Product[]> {
+): Promise<Product[]> => {
     const payload = await getPayloadClient()
 
     const result = await payload.find({
@@ -250,4 +283,4 @@ export async function getRelatedProducts(
     })
 
     return result.docs as Product[]
-}
+})

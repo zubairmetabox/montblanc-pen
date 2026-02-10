@@ -28,6 +28,7 @@ export default function CheckoutPage() {
     const router = useRouter()
     const { items, total, clearCart } = useCart()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isSuccess, setIsSuccess] = useState(false)
 
     const {
         register,
@@ -36,6 +37,22 @@ export default function CheckoutPage() {
     } = useForm<CheckoutFormData>({
         resolver: zodResolver(checkoutSchema),
     })
+
+    if (isSubmitting || isSuccess) {
+        return (
+            <div className="py-24">
+                <div className="container text-center">
+                    <h1 className="text-h1 font-serif mb-4">Processing</h1>
+                    <p className="text-muted-foreground mb-8">
+                        {isSuccess ? 'Redirecting to your order confirmation...' : 'Submitting your inquiry...'}
+                    </p>
+                    <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     if (items.length === 0) {
         return (
@@ -76,6 +93,7 @@ export default function CheckoutPage() {
             }
 
             const order = await response.json()
+            setIsSuccess(true)
             clearCart()
             router.push(`/checkout/success?orderNumber=${order.orderNumber}`)
         } catch (error) {
