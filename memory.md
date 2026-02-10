@@ -9,8 +9,14 @@ This file serves as a memory bank and context provider for developers continuing
 ## 📜 Documentation Protocol
 **Mandatory Process for Developers**:
 1. **Issue Tracking**: Every time a technical issue or bug is fixed, it **must** be documented in [Tech-stack-choice.md](file:///c:/dev/Payload-cms/montblanc-pens/Tech-stack-choice.md). Document the error message, the root cause, and the final working code.
-2. **Context Persistence**: Every session update should be summarized in this `memory.md` file. Ensure the "Project Progress" and "Remaining Tasks" sections are kept current.
-3. **TypeScript Integrity**: Always run `npm run generate:types` after changing any Payload collection fields to keep the frontend types in sync.
+2. **Context Persistence**: Every session update should be summarized in this `memory.md` file. Ensure the "Project Progress" and "Remaining Tasks"on slug is `collections`.
+- In TypeScript types (`payload-types.ts`), it maps to the `Collection` type.
+- The configuration file is `PenCollections.ts` and uses `dbName: 'pen_collections'`.
+
+### 3. Cart Implementation
+- **Provider**: `src/providers/cart-provider.tsx`
+- **Persistence**: Items are saved to `localStorage` under the key `montblanc-cart`.
+- **Checkout**: Currently an "Order Inquiry" system. Submitting checkout creates an entry in the `Orders` collection in Payload.
 
 ---
 

@@ -62,6 +62,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             }
             return [...prev, { productId, quantity: 1, product }]
         })
+        setIsOpen(true)
     }, [])
 
     const removeItem = useCallback((productId: string) => {
