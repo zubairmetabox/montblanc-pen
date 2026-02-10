@@ -2,11 +2,11 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { getCollectionBySlug, getProductsByCollection, getCollections } from '@/lib/queries'
 import { ProductGrid } from '@/components/products'
-import type { Media } from '@/payload-types'
+import type { Media, Collection } from '@/payload-types'
 
 export async function generateStaticParams() {
     const collections = await getCollections()
-    return collections.map((collection) => ({
+    return collections.map((collection: Collection) => ({
         slug: collection.slug,
     }))
 }
