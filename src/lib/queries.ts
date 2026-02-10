@@ -1,4 +1,5 @@
 import { getPayload } from 'payload'
+import { cache } from 'react'
 import config from '@/payload.config'
 import type { Product, Collection, Order } from '@/payload-types'
 
@@ -19,16 +20,16 @@ interface ProductFilters {
 }
 
 /**
- * Get Payload instance (cached)
+ * Get Payload instance (cached for the request)
  */
-async function getPayloadClient() {
+export const getPayloadClient = cache(async () => {
     return await getPayload({ config })
-}
+})
 
 /**
  * Fetch all collections
  */
-export async function getCollections(options?: QueryOptions): Promise<Collection[]> {
+export const getCollections = cache(async (options?: QueryOptions): Promise<Collection[]> => {
     const payload = await getPayloadClient()
 
     const result = await payload.find({
@@ -39,12 +40,12 @@ export async function getCollections(options?: QueryOptions): Promise<Collection
     })
 
     return result.docs as Collection[]
-}
+})
 
 /**
  * Fetch a single collection by slug
  */
-export async function getCollectionBySlug(slug: string): Promise<Collection | null> {
+export const getCollectionBySlug = cache(async (slug: string): Promise<Collection | null> => {
     const payload = await getPayloadClient()
 
     const result = await payload.find({
@@ -55,8 +56,8 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
         limit: 1,
     })
 
-    return result.docs[0] as Collection || null
-}
+    return (result.docs[0] as Collection) || null
+})
 
 /**
  * Fetch featured collections
@@ -126,7 +127,7 @@ export async function getProducts(
 /**
  * Fetch a single product by slug
  */
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export const getProductBySlug = cache(async (slug: string): Promise<Product | null> => {
     const payload = await getPayloadClient()
 
     const result = await payload.find({
@@ -138,8 +139,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         depth: 2,
     })
 
-    return result.docs[0] as Product || null
-}
+    return (result.docs[0] as Product) || null
+})
 
 /**
  * Fetch featured products
@@ -214,6 +215,10 @@ export async function createOrder(orderData: {
         collection: 'orders',
         data: {
             ...orderData,
+            items: orderData.items.map((item) => ({
+                ...item,
+                product: item.product as any,
+            })),
             orderNumber,
             status: 'pending',
         },

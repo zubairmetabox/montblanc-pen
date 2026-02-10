@@ -54,7 +54,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
                     size="xl"
                     className="w-full md:w-auto"
                     disabled={!isInStock}
-                    onClick={() => addItem(product.id, product)}
+                    onClick={() => addItem(String(product.id), product)}
                 >
                     {isInStock ? 'Add to Cart' : 'Out of Stock'}
                 </Button>

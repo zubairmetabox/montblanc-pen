@@ -91,7 +91,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             <Button
                 size="sm"
                 className="w-full mt-2"
-                onClick={() => addItem(product.id, product)}
+                onClick={() => addItem(String(product.id), product)}
             >
                 Add to Cart
             </Button>

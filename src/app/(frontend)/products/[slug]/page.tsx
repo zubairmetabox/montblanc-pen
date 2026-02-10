@@ -1,8 +1,15 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { getProductBySlug, getRelatedProducts } from '@/lib/queries'
+import { getProductBySlug, getRelatedProducts, getProducts } from '@/lib/queries'
 import { ProductGallery, ProductInfo, ProductGrid } from '@/components/products'
 import type { Collection } from '@/payload-types'
+
+export async function generateStaticParams() {
+    const { products } = await getProducts(undefined, { limit: 100 })
+    return products.map((product) => ({
+        slug: product.slug,
+    }))
+}
 
 interface ProductPageProps {
     params: Promise<{ slug: string }>
@@ -32,7 +39,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     const collection = product.penCollection as Collection | undefined
     const relatedProducts = collection
-        ? await getRelatedProducts(product.id, collection.id)
+        ? await getRelatedProducts(String(product.id), String(collection.id))
         : []
 
     return (

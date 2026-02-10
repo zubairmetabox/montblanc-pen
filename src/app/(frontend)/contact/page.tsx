@@ -19,7 +19,7 @@ export default function ContactPage() {
                             Get in Touch
                         </h1>
                         <p className="mt-6 text-lg text-muted-foreground">
-                            Whether you're looking for a specific vintage model or need advice
+                            Whether you&apos;re looking for a specific vintage model or need advice
                             on starting your collection, our specialists are here to help.
                         </p>
 
