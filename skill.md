@@ -12,6 +12,7 @@ This document captures the specific development style, technical preferences, an
 - **Headless First**: Payload CMS 3.x is the preferred backend for modern e-commerce.
 - **Strict Typing**: Payload types must be generated and strictly followed in the frontend.
 - **Naming Protocol**: Be wary of Mongoose reserved words. Use descriptive names like `penCollection` instead of generic `collection`.
+- **Layout Architecture**: **NO** nested HTML. Use parallel root layouts: `(frontend)` for public sites, `(payload)` for admin. Delete top-level `src/app/layout.tsx`.
 
 ## 📜 Documentation & Memory
 - **No Lost Lessons**: Every resolved issue must be logged in `Tech-stack-choice.md`.
@@ -27,6 +28,9 @@ This document captures the specific development style, technical preferences, an
     - For database hangs/SSL errors, always check **IP whitelisting** first via `curl.exe https://api.ipify.org`.
     - For duplicate React keys in Payload galleries, always filter by ID: `self.findIndex((t) => t.id === img.id)`.
     - For missing images, check `next.config.mjs` for **remotePatterns** configuration.
+
+### 🛑 Critical Protocols
+- **Git Commit Rule**: **DO NOT COMMIT OR PUSH** without specific, explicit user permission. Always ask before running `git commit` or `git push`. This is a hard rule.
 
 ## 💡 Personal Development Philosophy
 "I want to jump straight to the final working solution instead of juggling with issues."

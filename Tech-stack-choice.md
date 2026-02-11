@@ -105,6 +105,14 @@ export default buildConfig({
 export const dynamic = 'force-dynamic'
 ```
 
+### 🔴 Issue 5: Runtime Regression (ENOENT _document.js)
+**Symptoms**: sudden crash with `Error: ENOENT: no such file or directory, open ... .next\server\pages\_document.js` after a refactor.
+**Cause**: Corrupted Next.js build cache (`.next` folder) combined with a lingering "zombie" node process locking files.
+**Solution**:
+1. Kill all node processes: `taskkill /F /IM node.exe` (Windows) or `pkill node` (Mac/Linux).
+2. Delete the cache: `rm -rf .next`.
+3. Restart server: `npm run dev`.
+
 ---
 
 ## 🎨 Design System (Tailwind v4)
