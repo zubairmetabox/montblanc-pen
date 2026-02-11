@@ -65,6 +65,8 @@ For detailed technical hurdles and architectural choices, see: [Tech-stack-choic
 - [x] **Media**: High-fidelity Unsplash integration with automated seed script.
 - [x] **Stability**: Refactored Layouts to fix Admin crash (Parallel Root Layouts).
 - [x] **Runtime**: Resolved `ENOENT` regression by clearing corrupted build cache.
+- [x] **Database**: Diagnosed and resolved connection pool exhaustion (zombie processes).
+- [x] **Production**: Fixed Vercel crash/timeouts via connection pooling (`max: 1`) and dynamic rendering.
 
 ### Remaining Tasks
 - [x] **Images**: High-quality assets sourced and automated via seed script.

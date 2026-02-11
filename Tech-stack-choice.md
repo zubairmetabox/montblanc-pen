@@ -113,6 +113,23 @@ export const dynamic = 'force-dynamic'
 2. Delete the cache: `rm -rf .next`.
 3. Restart server: `npm run dev`.
 
+### 🔴 Issue 6: Database Query Failure (Connection Exhaustion)
+**Symptoms**: `Failed query: select count(*) ...` or `MaxClientsInSessionMode`.
+**Cause**: Too many active dev server instances or zombie processes hogging the database connection pool (Supabase Transaction Pool is small).
+**Solution**:
+1. Check ports: `netstat -ano | findstr :3000`.
+2. Kill processes: `taskkill /F /PID <PID>`.
+3. Restart server.
+
+### 🔴 Issue 7: Production Crash / Stuck Checkout (Serverless Limits)
+**Symptoms**: `/admin` crashes with "Server-side exception" on Vercel; Checkout hangs indefinitely.
+**Cause**: Vercel spins up multiple serverless functions. If `pool: { max: 10 }` is set, 10 lambdas = 100 connections, exhausting Supabase limits instantly.
+**Solution**:
+1. Update `payload.config.ts` to use `max: 1` in production.
+```typescript
+max: process.env.NODE_ENV === 'production' ? 1 : 10,
+```
+
 ---
 
 ## 🎨 Design System (Tailwind v4)

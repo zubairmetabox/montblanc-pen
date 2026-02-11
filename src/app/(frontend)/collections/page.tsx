@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { getCollections } from '@/lib/queries'
 import { CollectionGrid } from '@/components/home'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
     title: 'Collections',
     description: 'Explore our curated Montblanc fountain pen collections.',
