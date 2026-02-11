@@ -66,6 +66,12 @@ For detailed technical hurdles and architectural choices, see: [Tech-stack-choic
 - [x] **Stability**: Refactored Layouts to fix Admin crash (Parallel Root Layouts).
 - [x] **Runtime**: Resolved `ENOENT` regression by clearing corrupted build cache.
 - [x] **Database**: Diagnosed and resolved connection pool exhaustion (zombie processes).
+- [x] **Neon Migration**:
+    -   **2026-02-11**: Resolved Production Crash (Connection Pool Exhaustion).
+    -   **Issue**: Supabase (Port 5432) limit reached by Vercel Serverless functions.
+    -   **Fix**: Migrated to **Neon (Serverless Postgres)**.
+    -   **Strategy**: Fresh Start (New DB, Seeded Data).
+    -   **Config**: Increased timeout to 20s, enabled SSL, relaxed pool limit.
 - [x] **Production**: Fixed Vercel crash/timeouts via connection pooling (`max: 1`) and dynamic rendering.
 
 ### Remaining Tasks

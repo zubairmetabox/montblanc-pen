@@ -43,9 +43,14 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
-      max: process.env.NODE_ENV === 'production' ? 1 : 10,
+      // Neon (Serverless Postgres) handles connections efficiently.
+      // We can relax the strict 'max: 1' limit used for Supabase.
+      max: process.env.NODE_ENV === 'production' ? 10 : 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
+      connectionTimeoutMillis: 20000,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
   }),
   sharp,

@@ -5,8 +5,15 @@ This document serves as a **Skill** for AI agents and developers to replicate th
 ## 🏗 Core Technical Stack (Final Verified State)
 
 - **Framework**: Next.js 15.4.11 (App Router)
-- **CMS**: Payload CMS 3.75.0 (Locked Version)
-- **Database**: PostgreSQL (Supabase) via `@payloadcms/db-postgres`
+- **CMS**: Payload CMS 3.75.0
+### Database (Migration Feb 2026)
+-   **Provider**: **Neon** (Serverless Postgres)
+-   **Why**: 
+    -   **Previous**: Supabase (Port 5432) caused connection pool exhaustion with Vercel Serverless functions.
+    -   **Current**: Neon separates storage and compute, handling thousands of transient serverless connections natively. 
+    -   **Features**: Auto-suspend (scales to zero), Branching, Pooled connections.
+-   **Adapter**: `@payloadcms/db-postgres`
+-   **Config**: `max: 10` connections, `ssl: true`, `timeout: 20000ms`.
 - **Styling**: Tailwind CSS v4 (using `@tailwindcss/postcss`)
 - **Deployment**: Vercel (Serverless)
 - **Package Manager**: npm
