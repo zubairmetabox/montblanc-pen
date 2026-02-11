@@ -31,23 +31,22 @@ This document serves as a **Skill** for AI agents and developers to replicate th
 **Command**: `npm install` (Ensure clean node_modules if version mismatch occurs)
 
 ### 2. Layout Architecture (Crucial for Admin Panel)
-**Pattern**: Use **Route Groups** to separate Frontend and Admin layouts to avoid hydration errors.
+**Pattern**: Use **Parallel Root Layouts** (No top-level `layout.tsx`).
 
-- **`src/app/layout.tsx`** (Root):
-  - Contains `<html>` and `<body>` tags.
-  - Exports generic metadata.
-  - **NO** global providers or complex UI here.
+- **`src/app/layout.tsx`**: **DELETE THIS FILE**.
+  - **Reason**: A top-level layout wraps *all* routes, including the Admin panel. Since Payload's Admin panel has its own `<html>` and `<body>` tags, wrapping it causes **Nested HTML** and hydration crashes.
 
 - **`src/app/(frontend)/layout.tsx`**:
-  - Encapsulates the public site.
-  - Imports global CSS/fonts.
-  - **MUST NOT** contain another `<html>` or `<body>` tag. Use a wrapper `div`.
+  - Acts as the Root Layout for the public site.
+  - **MUST** contain `<html>` and `<body>` tags.
+  - Imports global CSS (`import '../globals.css'`).
+  - Configures Fonts (`next/font/google`) and Metadata.
   - Provides `CartProvider`, `ThemeProvider`, `Navbar`, `Footer`.
 
 - **`src/app/(payload)/layout.tsx`**:
-  - Pure wrapper for Payload.
-  - `import '@payloadcms/next/css'`
-  - `export default ({ children }) => <RootLayout>{children}</RootLayout>` (Imports Payload's own RootLayout)
+  - Acts as the Root Layout for the Admin panel.
+  - Handles its own HTML structure via `@payloadcms/next/layouts`.
+
 
 ### 3. Database Configuration (PostgreSQL)
 **Config**: `src/payload.config.ts`
