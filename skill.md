@@ -13,6 +13,9 @@ This document captures the specific development style, technical preferences, an
 - **Strict Typing**: Payload types must be generated and strictly followed in the frontend.
 - **Naming Protocol**: Be wary of Mongoose reserved words. Use descriptive names like `penCollection` instead of generic `collection`.
 - **Layout Architecture**: **NO** nested HTML. Use parallel root layouts: `(frontend)` for public sites, `(payload)` for admin. Delete top-level `src/app/layout.tsx`.
+- **Dependency Management**:
+    - **Pin Critical Versions**: For Payload plugins (like Vercel Blob), explicitly pin versions (e.g., `3.75.0`) to match the core if newer versions cause "Context" errors.
+    - **Import Maps**: When adding UI plugins to Payload, always run `payload generate:importmap` if client-side errors occur in the Admin panel.
 
 ## 📜 Documentation & Memory
 - **No Lost Lessons**: Every resolved issue must be logged in `Tech-stack-choice.md`.
@@ -21,7 +24,7 @@ This document captures the specific development style, technical preferences, an
 
 ## ⚙️ Workflow & Tooling
 - **Package Manager**: NPM is the primary tool.
-- **Database**: Shift to MongoDB Atlas (Cloud) early to avoid local setup friction.
+- **Database**: **Neon (Serverless Postgres)** is the default choice for modern Vercel deployments. Avoid MongoDB or standard Postgres (Supabase) if connection pooling is a bottleneck.
 - **Environment**: Keep `.env` simple and well-documented.
 - **Cleanup**: Proactively fix TypeScript errors and console warnings.
 - **Troubleshooting Protocol**:

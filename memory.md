@@ -4,27 +4,21 @@ This file serves as a memory bank and context provider for developers continuing
 
 ## 🏁 Project Overview
 **Goal**: A premium e-commerce platform for Montblanc fountain pens using a headless CMS approach.
-**Status**: Stable Checkpoint. Fixed Admin Panel crash via Layout Refactoring. Resolved runtime regression. Codebase is clean and ready for next phase.
+**Status**: Stable. Fully deployed to Vercel with Neon Database and Vercel Blob Storage.
 
 ## 📜 Documentation Protocol
 **Mandatory Process for Developers**:
 1. **Issue Tracking**: Every time a technical issue or bug is fixed, it **must** be documented in [Tech-stack-choice.md](file:///c:/dev/Payload-cms/montblanc-pens/Tech-stack-choice.md). Document the error message, the root cause, and the final working code.
-2. **Context Persistence**: Every session update should be summarized in this `memory.md` file. Ensure the "Project Progress" and "Remaining Tasks"on slug is `collections`.
-- In TypeScript types (`payload-types.ts`), it maps to the `Collection` type.
-- The configuration file is `PenCollections.ts` and uses `dbName: 'pen_collections'`.
-
-### 3. Cart Implementation
-- **Provider**: `src/providers/cart-provider.tsx`
-- **Persistence**: Items are saved to `localStorage` under the key `montblanc-cart`.
-- **Checkout**: Currently an "Order Inquiry" system. Submitting checkout creates an entry in the `Orders` collection in Payload.
+2. **Context Persistence**: Every session update should be summarized in this `memory.md` file. Ensure the "Project Progress" and "Remaining Tasks" sections are updated at the end of every session.
 
 ---
 
 ## 🛠 Tech Stack Snapshot
 - **Framework**: Next.js 15.4 (App Router)
 - **CMS**: Payload CMS 3.75 (Next.js integrated)
-- **Database**: MongoDB Atlas (Cloud)
-- **Styling**: Tailwind CSS v4 (Migrated for latest performance)
+- **Database**: **Neon** (Serverless Postgres) - *Migrated from Supabase*
+- **Media**: **Vercel Blob** - *Migrated from Local/UploadThing*
+- **Styling**: Tailwind CSS v4
 - **Fonts**: Inter (Sans) & Playfair Display (Serif)
 - **State**: React Context for Theme and Cart (with `localStorage` persistence)
 
@@ -73,6 +67,11 @@ For detailed technical hurdles and architectural choices, see: [Tech-stack-choic
     -   **Strategy**: Fresh Start (New DB, Seeded Data).
     -   **Config**: Increased timeout to 20s, enabled SSL, relaxed pool limit.
 - [x] **Production**: Fixed Vercel crash/timeouts via connection pooling (`max: 1`) and dynamic rendering.
+- [x] **Storage Migration (Vercel Blob)**:
+    -   **Failure**: UploadThing failed due to Dependency Hell (v6 vs v7).
+    -   **Initial Failure**: Vercel Blob (v3.76) caused "Context" errors with Payload 3.75.
+    -   **Success**: Pinned `@payloadcms/storage-vercel-blob` to `3.75.0` to match core.
+    -   **Fix**: Regenerated `importMap` to resolve client-side admin errors.
 
 ### Remaining Tasks
 - [x] **Images**: High-quality assets sourced and automated via seed script.
