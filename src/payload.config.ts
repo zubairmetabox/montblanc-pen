@@ -1,3 +1,4 @@
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor, HeadingFeature, BoldFeature, ItalicFeature, LinkFeature, UnorderedListFeature, OrderedListFeature } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -54,5 +55,13 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    vercelBlobStorage({
+      enabled: true,
+      collections: {
+        media: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
+  ],
 })
