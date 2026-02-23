@@ -49,6 +49,8 @@ export function ProductGallery({ product }: ProductGalleryProps) {
                         sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover"
                         priority
+                        placeholder={currentImage.blurDataURL ? 'blur' : 'empty'}
+                        blurDataURL={currentImage.blurDataURL ?? undefined}
                     />
                 )}
             </div>
@@ -73,6 +75,8 @@ export function ProductGallery({ product }: ProductGalleryProps) {
                                 fill
                                 sizes="80px"
                                 className="object-cover"
+                                placeholder={image.blurDataURL ? 'blur' : 'empty'}
+                                blurDataURL={image.blurDataURL ?? undefined}
                             />
                         </button>
                     ))}

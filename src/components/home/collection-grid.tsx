@@ -59,7 +59,10 @@ function CollectionCard({ collection, index }: { collection: Collection; index: 
                         src={image.url || '/placeholder.jpg'}
                         alt={image.alt}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        placeholder={image.blurDataURL ? 'blur' : 'empty'}
+                        blurDataURL={image.blurDataURL ?? undefined}
                     />
                 )}
 

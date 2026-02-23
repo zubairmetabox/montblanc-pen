@@ -79,6 +79,8 @@ export function CartSidebar() {
                                                     width={80}
                                                     height={80}
                                                     className="h-full w-full object-cover"
+                                                    placeholder={item.product.heroImage.blurDataURL ? 'blur' : 'empty'}
+                                                    blurDataURL={item.product.heroImage.blurDataURL ?? undefined}
                                                 />
                                             )}
                                         </div>

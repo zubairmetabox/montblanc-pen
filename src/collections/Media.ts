@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import sharp from 'sharp'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -36,6 +37,23 @@ export const Media: CollectionConfig = {
     adminThumbnail: 'thumbnail',
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   },
+  hooks: {
+    beforeChange: [
+      async ({ data, req }) => {
+        if (!req.file?.data) return data
+        try {
+          const lqipBuffer = await sharp(req.file.data)
+            .resize(16, 16, { fit: 'cover' })
+            .webp({ quality: 20 })
+            .toBuffer()
+          data.blurDataURL = `data:image/webp;base64,${lqipBuffer.toString('base64')}`
+        } catch (err) {
+          console.warn('[Media] LQIP generation failed, skipping blurDataURL:', err)
+        }
+        return data
+      },
+    ],
+  },
   fields: [
     {
       name: 'alt',
@@ -44,6 +62,15 @@ export const Media: CollectionConfig = {
       label: 'Alt Text',
       admin: {
         description: 'Describe the image for accessibility',
+      },
+    },
+    {
+      name: 'blurDataURL',
+      type: 'text',
+      admin: {
+        hidden: true,
+        readOnly: true,
+        description: 'Auto-generated LQIP blur placeholder (Base64 WebP data URI)',
       },
     },
   ],

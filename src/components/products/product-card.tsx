@@ -41,6 +41,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            placeholder={heroImage.blurDataURL ? 'blur' : 'empty'}
+                            blurDataURL={heroImage.blurDataURL ?? undefined}
                         />
                     )}
                 </div>
